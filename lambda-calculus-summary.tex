@@ -287,7 +287,7 @@ Notice how \textit{true} and \textit{false} come from \textit{select\_first} and
   &= (\lambda b . x \quad y) \\
   &= x
 \end{align*}
-Read like a ternary \texttt{if} statement, i.e.: \texttt{cond ? x : y}. In this case \texttt{true} is passed as the \textbf{condition}.
+Read like a ternary \texttt{if} statement, i.e.: \texttt{z ? x : y}. In this case $z = true$ is passed as the \textbf{condition}, where $z$ is the last expression of the outer application. But $z = false$ would also be a valid expression. 
 \end{block}
 \end{frame}
 
