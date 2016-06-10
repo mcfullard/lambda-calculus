@@ -324,8 +324,7 @@ Now we can pass \texttt{x} as an argument and get a result...
 Passing \texttt{true} as argument:
 \begin{align*}
 	&(not \quad true) \\
-    &= (\lambda x.(\lambda x. ((c \quad false) \quad true) \quad x) \quad true) &&\\
-    &= \lambda x.((x \quad false) \quad true) &&\\
+    &= (\lambda x. ((x \quad false) \quad true) \quad true) &&\\
     &= ((true \quad false) \quad true) &&\\
     &= ((\lambda a . \lambda b . a \quad false) \quad true) &&\text{(def. of true)}\\
     &= (\lambda b . false \quad true) &&\\
