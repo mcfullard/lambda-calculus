@@ -1,0 +1,646 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+}
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{framed}
+
+\title[Your Short Title]{Lambda Calculus for Advanced Programming}
+\author{Based on Dr MC du Plessis' Lectures}
+\date{June 2016}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+%\begin{frame}{Outline}
+%  \tableofcontents
+%\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Introduction}
+
+\begin{block}{In Lambda Calculus}
+  \begin{itemize}
+    \item $<expression>::=<name>|<function>|<application>$
+    \item $<function>::=\lambda<name>.<expression>$
+    \item $<application>::=(<function> \quad <expression>)$
+  \end{itemize}
+\end{block}
+
+\begin{block}{Examples of valid Lambda expressions}
+  \begin{itemize}
+    \item $\lambda x.x$
+    \item $\lambda first. \lambda second . first$
+    \item $\lambda f . \lambda a . (f \, a)$
+  \end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{$\beta$-reductions}
+
+Everything done when evaluating Lambda expressions are called $\beta$-reductions.
+
+\vspace{0.5cm}
+
+Steps: Remove brackets, take away first name and replace with second part of application.
+
+\vspace{0.5cm}
+
+\begin{block}{Examples}
+  \begin{itemize}
+  	\item $(\lambda a . \lambda b . (a \quad b) \quad z) = \lambda b . (z \quad b)$
+   	\item $(\lambda x . x \quad \lambda y . y) = \lambda y . y$
+  \end{itemize}
+\end{block}
+
+\begin{block}{Identity function example}
+  \begin{itemize}
+    \item $(\lambda x . x \quad \lambda x . x) = \lambda x . x$
+  \end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{More functions}
+	\begin{framed}
+    	\textbf{Identity function} \hfill $\lambda x . x$
+    \end{framed}
+    	\begin{framed}
+    	\textbf{Self-application function} \hfill $\lambda s . (s \quad s)$
+    \end{framed}
+    \begin{block}{E.g. Apply identity function to self-application function}
+	    \begin{itemize}
+    		\item $(\lambda x . x \quad \lambda s . (s \quad s)) = \lambda s. (s \quad s)$
+	    \end{itemize}
+    \end{block}
+    \begin{block}{E.g. Apply self-application function to identity function}
+	    \begin{itemize}
+    		\item $(\lambda s . (s \quad s) \quad \lambda x . x) = (\lambda x . x \quad \lambda x . x) = \lambda x . x$
+	    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{More functions}
+	\begin{block}{E.g. Apply self-application function to self-application function}
+    	\begin{gather*}
+        	(\lambda s . (s \quad s) \quad \lambda s . (s \quad s)) \\
+            \downarrow \\
+            (\lambda s . (s \quad s) \quad \lambda s . (s \quad s)) \\
+            \downarrow \\
+            \vdots \\
+            \downarrow \\
+            (\lambda s . (s \quad s) \quad \lambda s . (s \quad s))
+        \end{gather*}
+    \end{block}
+\end{frame}
+
+\begin{frame}{More functions}
+	\begin{framed}
+    	\textbf{Function application function} \hfill $\lambda func . \lambda arg . (func \quad arg)$
+    \end{framed}
+    \begin{block}{E.g. Apply function application function to identity function and  self-application function}
+    	\begin{gather*}
+        	((\lambda func . \lambda arg . (func \quad arg) \quad \lambda x . x) \quad \lambda s . (s \quad s)) \\
+            \downarrow \\
+			(\lambda arg . (\lambda x . x \quad arg) \quad \lambda s . (s \quad s)) \\
+            \downarrow \\
+            (\lambda x . x \quad \lambda s . (s \quad s)) \\
+            \downarrow \\
+            \lambda s . (s \quad s)
+        \end{gather*}
+    \end{block}
+\end{frame}
+
+\begin{frame}{$\alpha$-conversion}
+Context of variables are local to their expressions, but having multiple variable of the same name may be confusing. $\alpha$-conversion is the renaming of variables.
+    \begin{block}{Without $\alpha$-conversion:}
+    \begin{align*}
+    &(\lambda f . \lambda g . (\lambda f . (g \quad f) \quad f) \quad \lambda p . \lambda q . p) \\
+		&= (\lambda f . \lambda g . (g \quad f ) \quad \lambda p. \lambda q . p) \\
+        &= \lambda g . (g \quad \lambda p . \lambda q . p)
+    \end{align*}
+    \end{block}
+    \begin{block}{With $\alpha$-conversion:}
+    \begin{align*}
+    	& (\lambda f . \lambda g . (\lambda f_1 . (g \quad f_1) \quad f) \quad \lambda p . \lambda q . p) \\
+		&= (\lambda f . \lambda g . (g \quad f ) \quad \lambda p. \lambda q . p) \\
+        &= \lambda g . (g \quad \lambda p . \lambda q . p)
+    \end{align*}
+    \end{block}
+\end{frame}
+
+\begin{frame}{$\beta$-reduction example}
+	\begin{align*}
+    	&((( \lambda x . \lambda y . \lambda z . ((x \quad y) \quad z) \quad \lambda f . \lambda a . (f \quad a)) \quad \lambda i . i) \quad \lambda j . j) \\
+        &= ((\lambda y . \lambda z . (( \lambda f . \lambda a . (f \quad a) \quad y) \quad z) \quad \lambda i . i) \quad \lambda j . j) \\
+        &= (\lambda z . ((\lambda f . \lambda a . (f \quad a) \quad \lambda i . i ) \quad z ) \quad \lambda j . j ) \\
+        &= ((\lambda f . \lambda a . (f \quad a ) \quad \lambda i . i ) \quad \lambda j . j) \\
+        &= (\lambda a . (\lambda i . i \quad a) \quad \lambda j . j) \\
+        &= (\lambda i . i \quad \lambda j .j ) \\
+        &= \lambda j . j
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Named Functions}
+Define named functions with: $\mathbf{def\;<name>\;=\;<func>}$ to make it easier to write out.
+\begin{block}{Some named functions:}
+	\begin{framed} $\mathbf{def \; self\_apply = \lambda s . (s \quad s)}$ \end{framed}
+  	\begin{framed} $\mathbf{def \; identity = \lambda x . x}$ \end{framed}
+   	\begin{framed} $\mathbf{def \; apply = \lambda func . \lambda arg . (func \quad arg)}$ \end{framed}
+\end{block}
+\end{frame}
+
+\begin{frame}{Named Functions}
+Let $\mathbf{def \; identity_2 = \lambda x . ((apply \quad identity)  \quad x)}$, then:
+  \begin{align*}
+      (identity_2 \quad identity) &= (\lambda x . (( apply \quad identity) \quad x ) \quad identity) \\
+      &= ((apply \quad identity) \quad identity) \\
+      &= ((\lambda f . \lambda a . (f \quad a) \quad identity) \quad identity) \\
+      &= ((\lambda a . (identity \quad a) \quad identity) \\
+      &= (identity \quad identity) \\
+      &= (\lambda x . x \quad \lambda x . x) \\
+      &= \lambda x . x
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Named Functions}
+\begin{block}{Example}
+Prove that the application function applies two arguments where the first is the function and the second its expression.
+	\begin{align*}
+    	((apply \quad F) \quad AR) &= ((\lambda f . \lambda a . (f \quad a) \quad F) \quad AR) \\
+        &= (\lambda a . (F \quad a) \quad AR) \\
+        &= (F \quad AR)
+    \end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Named Functions}
+\begin{block}{Example}
+Let $\mathbf{def \; self\_apply_2 = \lambda s . ((apply \quad s) \quad s)}$. Prove that this named function is equivalent to the normal apply function.
+	\begin{align*}
+		(self\_apply_2 \quad z) &= (\lambda s . ((apply \quad s) \quad s) \quad z) \\
+        &= ((apply \quad z) \quad z) \\
+        &= ((\lambda f . \lambda a . (f \quad a) \quad z) \quad z) \\
+        &= (\lambda a . (z \quad a) \quad z) \\
+        &= (z \quad z)
+    \end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Named Functions}
+\begin{block}{More named functions:}
+	\begin{framed} $\mathbf{def \; select\_first = \lambda first . \lambda second . first}$ \end{framed}
+    \begin{framed} $\mathbf{def \; select\_second = \lambda first . \lambda second . second}$ \end{framed}
+\end{block}
+\begin{block}{Select first example:}
+Notice how \textit{identity} can be replaced with \textit{A} and similarly you'd get \textit{A} as result.
+	\begin{align*}
+    	((select\_first \; identity) \; apply) &= ((\lambda first . \lambda second . first \; identity) \; apply) \\
+        &= (\lambda second. identity \; apply) \\
+        &= identity
+    \end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Named Functions}
+\begin{block}{Select second example:}
+	\[\begin{aligned}
+    	((select\_second \quad A) \quad B) &= ((\lambda first . \lambda second . second \quad A) \quad B) \\
+        &= (\lambda second. second \quad B) \\
+        &= B
+    \end{aligned}\]
+\end{block}
+\begin{block}{Observe:}
+	\[\begin{aligned}
+ 		&(select\_first \; identity) && \\
+		&= (\lambda first . \lambda second . first identity) && \\
+        &= \lambda second . identity && \\
+        &= \lambda second . \lambda x . x && \text{(Renaming variables)} \\
+        &= \lambda first . \lambda second . second && \\
+        &\equiv select\_second &&
+    \end{aligned}\]
+\end{block}
+\end{frame}
+
+\begin{frame}{Named Functions}
+	\begin{framed} $\mathbf{def \; make\_pair = \lambda first . \lambda second . \lambda func . ((func \; first) \; second)}$ \end{framed}
+\textit{make\_pair} acts like a tuple.
+    \begin{align*}
+    	&((make\_pair \; A) \; B) \\
+        &= ((\lambda first . \lambda second . \lambda func . ((func \; first) \; second) \; second) \; A) \; B) \\
+        &= (\lambda second . \lambda func ((func \; A) \; second) \; B) \\
+        &= \lambda func . ((func \; A) \; B)
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Named Functions}
+	\begin{block}{Example application of \textit{make\_pair} result:}
+    \begin{align*}
+    	&(\lambda func . ((func \quad A) \quad B) \quad select\_first) \\
+        &=((select\_first \quad A) \quad B)
+    \end{align*}
+    \end{block}
+    \begin{block}{Similarly:}
+    \begin{align*}
+    	&(\lambda func . ((func \quad A) \quad B) \quad select\_second) \\
+        &= ((select\_second \quad A) \quad B)
+    \end{align*}
+    \end{block}
+\end{frame}
+
+\begin{frame}{If Statement}
+We want \texttt{if} statements to be able to do more interesting things.
+\begin{framed} $\mathbf{def \; cond = \lambda e_1 . \lambda e_2 . \lambda c ((c \quad e_1) \quad e_2)}$ \end{framed}
+\begin{framed} $\mathbf{def \; true = \lambda a . \lambda b . a}$ \end{framed}
+\begin{framed} $\mathbf{def \; false = \lambda a . \lambda b . b}$ \end{framed}
+Notice how \textit{true} and \textit{false} come from \textit{select\_first} and \textit{select\_second}.
+\end{frame}
+
+\begin{frame}{If Statement}
+\begin{block}{Example}
+\begin{align*}
+&(((cond \quad x) \quad y) \quad true) \\
+  &= (((\lambda e_1 . \lambda e_2 . \lambda c ((c \quad e_1) \quad e_2) \quad x) \quad y) \quad true) \\
+  &= ((\lambda e_2 . \lambda c ((c \quad x) \quad e_2) \quad y) \quad true) \\
+  &= (\lambda c ((c \quad x) \quad y) \quad true) \\
+  &= ((true \quad x) \quad y) \\
+  &= ((\lambda a . \lambda b . a \quad x) \quad y) \\
+  &= (\lambda b . x \quad y) \\
+  &= x
+\end{align*}
+Read like a ternary \texttt{if} statement, i.e.: \texttt{cond ? x : y}. In this case \texttt{true} is passed as the \textbf{condition}.
+\end{block}
+\end{frame}
+
+\begin{frame}{NOT Operator}
+Don't have operators yet so we can't get \texttt{true} or \texttt{false} out of conditions. Consider a truth table for NOT:
+\begin{table}
+\centering
+\begin{tabular}{c|c}
+X & NOT X \\\hline
+T & F \\
+F & T
+\end{tabular}
+\end{table}
+Where \texttt{T} is \texttt{true} and \texttt{F} is \texttt{false}. How do you define a function for this?
+\end{frame}
+
+\begin{frame}{NOT Operator}
+Solution lies in utilizing the ternary \texttt{if} statement: \texttt{x ? false : true}.
+\begin{framed} $\mathbf{def \; not = \lambda x . (((cond \quad false) \quad true) \quad x)}$ \end{framed}
+\begin{block}{Derivation}
+\begin{align*}
+	&\lambda x . (((cond \quad false) \quad true) \quad x) \\
+    &= \lambda x.(((\lambda e_1. \lambda e_2 . \lambda c . ((c \quad e_1) \quad e_2) \quad false) \quad true) \quad x) \\
+    &= \lambda x.((\lambda e_2 . \lambda c . ((c \quad false) \quad e_2) \quad true) \quad x) \\
+    &= \lambda x.(\lambda c . ((c \quad false) \quad true) \quad x) \\
+    &= \lambda x.((x \quad false) \quad true)
+\end{align*}
+\end{block}
+Now we can pass \texttt{x} as an argument and get a result...
+\end{frame}
+
+\begin{frame}{NOT Operator}
+\begin{block}{Test the result}
+Passing \texttt{true} as argument:
+\begin{align*}
+	&(not \quad true) \\
+    &= (\lambda x.(\lambda x. ((c \quad false) \quad true) \quad x) \quad true) &&\\
+    &= \lambda x.((x \quad false) \quad true) &&\\
+    &= ((true \quad false) \quad true) &&\\
+    &= ((\lambda a . \lambda b . a \quad false) \quad true) &&\text{(def. of true)}\\
+    &= (\lambda b . false \quad true) &&\\
+    &= false &&
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{AND Operator}
+Truth table for the AND operator:
+\begin{table}
+\centering
+\begin{tabular}{c|c|c}
+X & Y & X AND Y \\\hline
+T & T & T \\
+T & F & F \\
+F & T & F \\
+F & F & F
+\end{tabular}
+\end{table}
+Where \texttt{T} is \texttt{true} and \texttt{F} is \texttt{false}. How do you define a function for this?
+\end{frame}
+
+\begin{frame}{AND Operator}
+Comes from \texttt{x ? y : false}.
+\begin{framed} $\mathbf{def \; and = \lambda x . \lambda y . ((x \quad y) \quad false)}$ \end{framed}
+\begin{block}{Derivation}
+\begin{align*}
+	&\lambda x . \lambda y . (((cond \quad y) \quad false) \quad x) \\
+    &= \lambda x . \lambda y . (((\lambda e_1 . \lambda e_2 . \lambda c . ((c \quad e_1) \quad e_2) \quad y) \quad false) \quad x) \\
+    &= \lambda x . \lambda y . ((\lambda e_2 . \lambda c . ((c \quad y) \quad e_2) \quad false) \quad x) \\
+    &= \lambda x . \lambda y . (\lambda c . ((c \quad y) \quad false) \quad x) \\
+    &= \lambda x . \lambda y . ((x \quad y) \quad false)
+\end{align*}
+\end{block}
+Now we can pass \texttt{x} and \texttt{y} as arguments and get a result...
+\end{frame}
+
+\begin{frame}{AND Operator}
+\begin{block}{Test the result}
+Passing \texttt{true} and \texttt{false} as arguments:
+\begin{align*}
+    &((and \quad true) \quad false) && \\
+    &= ((\lambda x . \lambda y . ((x \quad y) \quad false) \quad true) \quad false) &&\\
+    &= (\lambda y . ((true \quad y) \quad false) \quad false) &&\\
+    &= ((true \quad false) \quad false) &&\\
+    &= ((\lambda a . \lambda b . a \quad false) \quad false) && \text{(def. of true)}\\
+    &= (\lambda b . false \quad false) &&\\
+    &= false &&
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{AND Operator}
+\begin{block}{Test the result}
+Passing \texttt{true} and \texttt{true} as arguments:
+\begin{align*}
+    &((and \quad true) \quad true) && \\
+    &= ((\lambda x . \lambda y . ((x \quad y) \quad false) \quad true) \quad true) &&\\
+    &= (\lambda y . ((true \quad y) \quad false) \quad true) &&\\
+    &= ((true \quad true) \quad false) &&\\
+    &= ((\lambda a . \lambda b . a \quad true) \quad false) && \text{(def. of true)}\\
+    &= (\lambda b . true \quad false) &&\\
+    &= true &&
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{OR Operator}
+Truth table for the OR operator:
+\begin{table}
+\centering
+\begin{tabular}{c|c|c}
+X & Y & X OR Y \\\hline
+T & T & T \\
+T & F & T \\
+F & T & T \\
+F & F & F
+\end{tabular}
+\end{table}
+Where \texttt{T} is \texttt{true} and \texttt{F} is \texttt{false}. How do you define a function for this?
+\end{frame}
+
+\begin{frame}{OR Operator}
+Comes from \texttt{x ? true : y}.
+\begin{framed} $\mathbf{def \; or = \lambda x . \lambda y . ((x \quad true) \quad y)}$ \end{framed}
+\begin{block}{Derivation}
+\begin{align*}
+	&\lambda x . \lambda y . (((cond \quad true) \quad y) \quad x) \\
+    &= \lambda x . \lambda y . ((( \lambda e_1 . \lambda e_2 . \lambda c . ((c \quad e_1) \quad e_2) \quad true) \quad y) \quad x) \\
+    &= \lambda x . \lambda y . ((\lambda e_2 . \lambda c . ((c \quad true) \quad e_2) \quad y) \quad x) \\
+    &= \lambda x . \lambda y . (\lambda c . ((c \quad true) \quad y) \quad x) \\
+    &= \lambda x . \lambda y . ((x \quad true) \quad y)
+\end{align*}
+\end{block}
+Now we can pass \texttt{x} and \texttt{y} as arguments and get a result...
+\end{frame}
+
+\begin{frame}{OR Operator}
+\begin{block}{Test the result}
+Passing \texttt{true} and \texttt{false} as arguments:
+\begin{align*}
+    &((or \quad true) \quad false) && \\
+    &= ((\lambda x . \lambda y . ((x \quad true) \quad y) \quad true) \quad false) &&\\
+    &= (\lambda y . ((true \quad true) \quad y) \quad false) &&\\
+    &= ((true \quad true) \quad false) &&\\
+    &= ((\lambda a . \lambda b . a \quad true) \quad false) && \text{(def. of true)}\\
+    &= (\lambda b . true \quad false) &&\\
+    &= true &&
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Exercise}
+Use Lambda Calculus to calculate the following:
+\begin{align*}
+	&if\;((T \vee F) \wedge (F \vee T))\;\{ \\
+    &\quad T \wedge F \\
+    &\} \; else \; \{ \\
+    &\quad T \\
+    &\}
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution}
+Start with a basic outline: $$(((cond \; x) \; y) \; z)$$ where $z$ is the actual condition you're passing. Similar to the ternary \texttt{if} statement \texttt{z ? x : y}. Now: $$x = ((and \; T) \; F),$$ $$y = T,$$ and $$z = ((and \; ((or \; T) \; F)) \; ((or \; F) \; T)).$$ Substituting yields:
+\begin{align}
+	&(((cond \; ((and \; T) \; F)) \; T) \; ((and \; ((or \; T) \; F)) \; ((or \; F) \; T)))
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution continued}
+Breaking up the work into parts:
+\begin{align}
+\begin{split}
+	((or \quad T) \quad F) &= ((\lambda a . \lambda b . ((a \quad T) \quad b) \quad T) \quad F) \\
+    &= (\lambda b . ((T \quad T) \quad b) \quad F) \\
+    &= ((T \quad T) \quad F) \\
+    &= ((\lambda a . \lambda b . a \quad T) \quad F) \\
+    &= (\lambda b . T \quad F) \\
+    &= T
+\end{split}
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution continued}
+\begin{align}
+\begin{split}
+	((or \quad F) \quad T) &= ((\lambda a . \lambda b . ((a \quad T) \quad b) \quad F) \quad T) \\
+    &= (\lambda b . ((F \quad T) \quad b) \quad T) \\
+    &= ((F \quad T) \quad T) \\
+    &= ((\lambda a . \lambda b . b \quad T) \quad T) \\
+    &= (\lambda b . b \quad T) \\
+    &= T
+\end{split}
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution continued}
+Now combining the results from (2) and (3):
+\begin{align}
+\begin{split}
+	((and \quad T) \quad T) &= ((\lambda x . \lambda y . ((x \quad y) \quad F) \quad T) \quad T) \\
+    &= (\lambda y . ((T \quad y) \quad F) \quad T) \\
+    &= ((T \quad T) \quad F) \\
+    &= ((\lambda a . \lambda b . a \quad T) \quad F) \\
+    &= (\lambda b . T \quad F) \\
+    &= T
+\end{split}
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution continued}
+\begin{align}
+\begin{split}
+	((and \quad T) \quad F) &= ((\lambda a . \lambda b . ((a \quad b) \quad F) \quad T) \quad F) \\
+    &= (\lambda b . ((T \quad b) \quad F) \quad F) \\
+    &= ((T \quad F) \quad F) \\
+    &= ((\lambda a . \lambda b . a \quad F) \quad F) \\
+    &= (\lambda b . F \quad F) \\
+    &= F
+\end{split}
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Conditions \& Operators}
+\begin{block}{Solution continued}
+Finally combining results from (4) and (5) into (1), yields:
+\begin{align}
+\begin{split}
+	(((cond \; F) \; T) \; T) &= (((\lambda e_1 . \lambda e_2. \lambda c . ((c \; e_1) \; e_2) \; F) \; T) \; T) \\
+    &= ((\lambda e_2 . \lambda c . ((c \; F) \; e_2) \; T) \; T) \\
+    &= (\lambda c . ((c \; F) \; T) \; T) \\
+    &= ((T \; F) \; T) \\
+    &= ((\lambda a . \lambda b . a \; F) \; T) \\
+    &= (\lambda b . F \; T) \\
+    &= F
+    \qed
+\end{split}
+\end{align}
+\end{block}
+\end{frame}
+
+\begin{frame}{Numbers}
+How are numbers defined?
+\begin{gather*}
+	1 = \text{ successor of } 0 \\
+    2 = \text{ successor of } 1 \\
+    \vdots
+\end{gather*}
+\begin{framed} $\mathbf{def \; zero = \lambda x . x}$ \hfill (identity function) \end{framed}
+\begin{framed} $\mathbf{def \; succ = \lambda n . \lambda s . ((s \quad false) \quad n)}$ \end{framed}
+Now we can define $\mathbf{def \; one = (succ \quad zero)}$ etc. for larger numbers.
+\end{frame}
+
+\begin{frame}{Numbers}
+	Numbers can be derived as follows:
+	\begin{align*}
+    	one &= (succ \quad zero) \\
+        &= (\lambda n . \lambda s . ((s \quad false) \quad n) \quad zero) \\
+        &= \lambda s . ((s \quad false) \quad zero) \\
+        two &= (succ \quad one) \\
+        &= (\lambda n . \lambda s . ((s \quad false) \quad n) \quad one) \\
+        &= \lambda s . ((s \quad false) \quad one) \\
+        &= \lambda s . ((s \quad false) \quad \lambda s . ((s \quad false) \quad zero))
+    \end{align*}
+    Notice that in general any positive natural number $\zeta$ can be represented by: $$\lambda s . ((s \quad false) \quad \zeta - 1), \quad \ni \zeta \in \{one, two, \dots \} $$
+\end{frame}
+
+\begin{frame}{Numbers}
+\begin{framed} $\mathbf{def \; is\_zero = \lambda n . (n \quad select\_first)}$ \end{framed}
+\begin{block}{Test}
+  \begin{align*}
+    (is\_zero \quad zero) &= (\lambda n . (n \quad select\_first) \quad \lambda x . x) \\
+    &= (\lambda x . x \quad select\_first) \\
+    &= select\_first \\
+    &= true
+  \end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Numbers}
+\begin{block}{Test}
+  \begin{align*}
+    &(is\_zero \quad \lambda s . ((s \quad false) \quad \zeta - 1)) \\
+    &= (\lambda n . (n \quad select\_first) \quad \lambda s . ((s \quad false) \quad \zeta - 1)) \\
+    &= (\lambda s . ((s \quad false) \quad \zeta - 1) \quad select\_first) \\
+    &= ((select\_first \quad false) \quad \zeta - 1) \\
+    &= false
+  \end{align*}
+  $\therefore$ is\_zero is \textit{false} for any number not zero.
+\end{block}
+\end{frame}
+
+\begin{frame}{Numbers}
+\begin{framed} $\mathbf{def \; pred_1 = \lambda n . (n \quad select\_second)}$ \end{framed}
+Consider:
+\begin{align*}
+	(pred_1 \quad zero) &= (\lambda n . (n select\_second) \quad \lambda x . x) \\
+    &= (\lambda x . x \quad select\_second) \\
+    &= select\_second \\
+    &= false
+\end{align*}
+Which clearly isn't correct. So $pred_1$ doesn't work for \textit{zero}.
+\end{frame}
+
+\begin{frame}{Numbers}
+But what about other numbers? Let $\zeta = \lambda s . ((s \; false) \; \zeta-1)$ be some positive natural number $\therefore$ $$\zeta \in \left \{ one, two, \dots \right \}$$ Then:
+\begin{align*}
+	(pred_1 \quad \zeta) &= (pred_1 \quad \lambda s . ((s \quad false) \quad \zeta - 1)) \\
+    &= (\lambda n . (n \quad select\_second) \quad \lambda s. ((s \quad false) \quad \zeta - 1)) \\
+    &= (\lambda s . ((s \quad false) \quad \zeta - 1) \quad select\_second) \\
+    &= ((select\_second \quad false) \quad \zeta - 1) \\
+    &= ((\lambda x . \lambda y . y \quad false) \quad \zeta - 1) \\
+    &= (\lambda y . y \quad \zeta - 1) \\
+    &= \zeta - 1
+\end{align*}
+Which is correct.
+\end{frame}
+
+\begin{frame}{Numbers}
+To get around the problem with $zero$ consider the function: $$\lambda n . (((cond \quad zero) \quad (pred_1 \quad n)) \quad (is\_zero \quad n))$$
+Which basically reads: \texttt{n == zero ? zero : n - 1}. Simplifying:
+\begin{align*}
+	&\lambda n . (((cond \quad zero) \quad (pred_1 \quad n)) \quad (is\_zero \quad n)) \\
+    &= \lambda n . (((\lambda e_1 . \lambda e_2 . \lambda c . ((c \; e_1) \; e_2) \; zero) \; (pred_1 \; n)) \; (is\_zero \; n)) \\
+    &= \lambda n . ((\lambda e_2. \lambda c. ((c \; zero) \; e_2) \; (pred_1 \; n)) \; (is\_zero \; n)) \\
+    &= \lambda n . (\lambda c . ((c \; zero) \; (pred_1 \; n)) \; (is\_zero \; n)) \\
+    &= \lambda n . (((is\_zero \; n) \; zero) \; (pred_1 \; n)) \\
+    &= \lambda n . (((is\_zero \; n) \; zero) \; (\lambda q.(q \; select\_second) \; n)) \\
+    &= \lambda n . (((is\_zero \; n) \; zero) \; (n \; select\_second))
+\end{align*}
+\end{frame}
+
+\begin{frame}{Numbers}
+From the previous result we can now define:
+\begin{framed} $\mathbf{def \; pred = \lambda n . (((is\_zero \; n) \; zero) \; (n \; select\_second))}$ \end{framed}
+Now: how to do addition? Consider: $$\lambda x. \lambda y. (((cond \; x) \; ((add \; (succ \; x)) \; (pred \; y))) \; (is\_zero \; y)).$$ But this is defined recursively, which breaks Lambda Calculus. Therefore...
+\end{frame}
+
+\begin{frame}{Numbers}
+	let rec add x y = if is\_zero y then x
+                      else add (succ x) (pred y)
+\end{frame}
+
+\end{document}
