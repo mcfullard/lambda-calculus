@@ -306,7 +306,7 @@ Where \texttt{T} is \texttt{true} and \texttt{F} is \texttt{false}. How do you d
 
 \begin{frame}{NOT Operator}
 Solution lies in utilizing the ternary \texttt{if} statement: \texttt{x ? false : true}.
-\begin{framed} $\mathbf{def \; not = \lambda x . (((cond \quad false) \quad true) \quad x)}$ \end{framed}
+\begin{framed} $\mathbf{def \; not = \lambda x . ((x \quad false) \quad true)}$ \end{framed}
 \begin{block}{Derivation}
 \begin{align*}
 	&\lambda x . (((cond \quad false) \quad true) \quad x) \\
